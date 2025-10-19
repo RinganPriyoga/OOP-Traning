@@ -1,0 +1,4 @@
+id,name,email,address,phone,storeName,isBuyer,isSeller,bankLinked,balance
+1001,Alice,Alice@gmail.com,Jl blabla,0812,Alice Bakery,1,1,1,536000
+1002,Erina,Erina@gmail.com,Jl Cim,0858,,1,0,1,764000
+1003,Rihana,Rihana@gmail.com,Jl Cekis,0859,,1,0,1,0
