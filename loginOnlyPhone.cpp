@@ -7,12 +7,13 @@
 #include <fstream>
 #include <sstream>
 #include <iomanip>
-#include "user.h" 
+#include "user.h" // Asumsikan file user.h yang telah dimodifikasi
 
 using namespace std;
 
 // Enum untuk pilihan utama
 enum PrimaryPrompt { LOGIN = 1, REGISTER, EXIT = 3 };
+enum LoggedInMenu { VIEW_PROFILE = 1, LOGOUT = 2 };
 
 // Fungsi bantu untuk konversi string ke huruf kecil
 string lowerit(string s) {
@@ -71,6 +72,39 @@ bool readLine(string& out, const string& prompt = "") {
     return !out.empty();
 }
 
+// Fungsi untuk menangani menu setelah login
+void handleLoggedInMenu(vector<Contact>& contacts, int cur) {
+    Contact& user = contacts[cur];
+    bool inLogin = true;
+
+    while (inLogin) {
+        cout << "\n --- Menu Login --- \n"
+             << "Akun: [ID " << user.id << "] " << user.name << "\n"
+             << "1. View Profile\n"
+             << "2. Logout & Back to Main Menu\n"
+             << "Choose: ";
+
+        int choice;
+        if (!readNumber(choice) || choice < 1 || choice > 2) {
+            cout << "Pilihan tidak valid.\n";
+            continue;
+        }
+
+        switch (choice) {
+            case VIEW_PROFILE:
+                cout << "\n--- Profile ---\n";
+                printContactSummary(user);
+                break;
+            case LOGOUT:
+                inLogin = false;
+                cout << "Logout berhasil.\n";
+                break;
+            default:
+                cout << "Pilihan tidak valid.\n";
+        }
+    }
+}
+
 // Fungsi untuk menangani proses login
 void handleLogin(vector<Contact>& contacts) {
     if (contacts.empty()) {
@@ -97,9 +131,8 @@ void handleLogin(vector<Contact>& contacts) {
     cout << "Berhasil login sebagai " << contacts[cur].name << ".\n";
     printContactSummary(contacts[cur]);
 
-    // Di sini bisa ditambahkan menu setelah login jika diperlukan
-    // Untuk versi ini, kita hanya menampilkan pesan dan kembali
-    cout << "Login berhasil.\n";
+    // Masuk ke menu setelah login
+    handleLoggedInMenu(contacts, cur);
 }
 
 // Fungsi untuk menangani proses registrasi
