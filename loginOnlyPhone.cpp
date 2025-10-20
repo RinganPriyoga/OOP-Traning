@@ -2,55 +2,17 @@
 #include <limits>
 #include <string>
 #include <vector>
-#include <cctype>
+#include <cctype> // untuk isdigit
 #include <ctime>
 #include <fstream>
 #include <sstream>
 #include <iomanip>
-#include "user.h" // Asumsikan file user.h yang telah dimodifikasi
+#include "user.h" // Memasukkan definisi struct Contact
 
 using namespace std;
 
-// Enum untuk pilihan utama
+// Enum untuk pilihan utama di menu awal
 enum PrimaryPrompt { LOGIN = 1, REGISTER, EXIT = 3 };
-enum LoggedInMenu { VIEW_PROFILE = 1, LOGOUT = 2 };
-
-// Fungsi bantu untuk konversi string ke huruf kecil
-string lowerit(string s) {
-    for (char &c : s)
-        c = (char)tolower((unsigned char)c);
-    return s;
-}
-
-// Fungsi untuk mencari akun berdasarkan nama dan nomor telepon
-int findByNamePhone(const vector<Contact>& v, const string& nm, const string& phone) {
-    string q_name = lowerit(nm);
-    string q_phone = phone; // Nomor telepon biasanya tidak diubah ke huruf kecil
-    for (int i = 0; i < (int)v.size(); ++i) {
-        if (lowerit(v[i].name) == q_name && v[i].phone == q_phone) {
-            return i;
-        }
-    }
-    return -1;
-}
-
-// Fungsi untuk mencari akun berdasarkan ID
-int findById(const vector<Contact>& v, int id) {
-    for (int i = 0; i < (int)v.size(); ++i) {
-        if (v[i].id == id) {
-            return i;
-        }
-    }
-    return -1;
-}
-
-// Fungsi untuk menampilkan ringkasan kontak
-void printContactSummary(const Contact& c) {
-    cout << "ID: " << c.id
-         << " | Name: " << c.name
-         << " | Phone: " << c.phone
-         << " | Address: " << c.address << "\n";
-}
 
 // Template untuk membaca angka dari input
 template<typename T>
@@ -69,40 +31,17 @@ bool readNumber(T& out, const string& prompt = "") {
 bool readLine(string& out, const string& prompt = "") {
     if (!prompt.empty()) cout << prompt;
     getline(cin, out);
-    return !out.empty();
+    return !out.empty(); // Kembalikan true jika string tidak kosong
 }
 
-// Fungsi untuk menangani menu setelah login
-void handleLoggedInMenu(vector<Contact>& contacts, int cur) {
-    Contact& user = contacts[cur];
-    bool inLogin = true;
-
-    while (inLogin) {
-        cout << "\n --- Menu Login --- \n"
-             << "Akun: [ID " << user.id << "] " << user.name << "\n"
-             << "1. View Profile\n"
-             << "2. Logout & Back to Main Menu\n"
-             << "Choose: ";
-
-        int choice;
-        if (!readNumber(choice) || choice < 1 || choice > 2) {
-            cout << "Pilihan tidak valid.\n";
-            continue;
-        }
-
-        switch (choice) {
-            case VIEW_PROFILE:
-                cout << "\n--- Profile ---\n";
-                printContactSummary(user);
-                break;
-            case LOGOUT:
-                inLogin = false;
-                cout << "Logout berhasil.\n";
-                break;
-            default:
-                cout << "Pilihan tidak valid.\n";
+// Fungsi untuk mencari akun berdasarkan nama dan nomor telepon
+int findByNamePhone(const vector<Contact>& v, const string& nm, const string& phone) {
+    for (int i = 0; i < (int)v.size(); ++i) {
+        if (v[i].name == nm && v[i].phone == phone) { // Bandingkan langsung, case-sensitive
+            return i;
         }
     }
+    return -1; // Kembalikan -1 jika tidak ditemukan
 }
 
 // Fungsi untuk menangani proses login
@@ -129,10 +68,12 @@ void handleLogin(vector<Contact>& contacts) {
     }
 
     cout << "Berhasil login sebagai " << contacts[cur].name << ".\n";
-    printContactSummary(contacts[cur]);
-
-    // Masuk ke menu setelah login
-    handleLoggedInMenu(contacts, cur);
+    cout << "ID: " << contacts[cur].id
+         << " | Name: " << contacts[cur].name
+         << " | Phone: " << contacts[cur].phone
+         << " | Address: " << contacts[cur].address << "\n";
+    // Disini bisa ditambahkan menu setelah login jika diperlukan
+    cout << "Login berhasil. Anda bisa melanjutkan ke fitur lain.\n";
 }
 
 // Fungsi untuk menangani proses registrasi
@@ -159,7 +100,10 @@ void handleRegister(vector<Contact>& contacts, int& nextId) {
 
     contacts.push_back(c);
     cout << "Register OK. Simpan ID: " << c.id << "\n";
-    printContactSummary(c);
+    cout << "ID: " << c.id
+         << " | Name: " << c.name
+         << " | Phone: " << c.phone
+         << " | Address: " << c.address << "\n";
 }
 
 int main() {
@@ -175,21 +119,21 @@ int main() {
                 "Choose: ";
 
         int ch;
-        if (!readNumber(ch)) continue;
+        if (!readNumber(ch)) continue; // Baca pilihan, ulangi jika input bukan angka
 
         if (ch == LOGIN) {
-            handleLogin(contacts);
+            handleLogin(contacts); // Panggil fungsi login
         }
         else if (ch == REGISTER) {
-            handleRegister(contacts, nextId);
+            handleRegister(contacts, nextId); // Panggil fungsi register
         }
         else if (ch == EXIT) {
             cout << "Exit Program.\n";
-            running = false;
+            running = false; // Keluar dari loop utama
         }
-        else {
+        else { // Jika pilihan tidak valid (bukan 1, 2, atau 3)
             cout << "Pilihan Tidak Valid.\n";
         }
     }
-    return 0;
+    return 0; // Program selesai
 }
